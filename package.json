@@ -1,0 +1,39 @@
+{
+  "name": "easy-file-picker",
+  "version": "1.0.3",
+  "description": "Easy File Picker is a straightforward library with no dependencies to upload/pick/read files in the browser.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danisss9/easy-file-picker"
+  },
+  "main": "index.js",
+  "license": "MIT",
+  "keywords": [
+    "open",
+    "file",
+    "upload",
+    "uploader",
+    "easy",
+    "pick",
+    "browser",
+    "angular",
+    "ng",
+    "react",
+    "preact",
+    "vue",
+    "javascript",
+    "typescript",
+    "core",
+    "js",
+    "ts"
+  ],
+  "scripts": {
+    "release": "npm run compile:lib && npm run publish:lib && npm run clean:lib",
+    "compile:lib": "tsc --project ./src/tsconfig.json",
+    "publish:lib": "npm publish --access public",
+    "clean:lib": "del *.d.ts && del *.js"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4"
+  }
+}
