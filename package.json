@@ -2,9 +2,13 @@
   "name": "easy-file-picker",
   "version": "1.0.3",
   "description": "Easy File Picker is a straightforward library with no dependencies to upload/pick/read files in the browser.",
+  "homepage": "https://github.com/danisss9/easy-file-picker#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/danisss9/easy-file-picker"
+    "url": "https://github.com/danisss9/easy-file-picker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/danisss9/easy-file-picker/issues"
   },
   "main": "index.js",
   "license": "MIT",
