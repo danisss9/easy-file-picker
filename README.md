@@ -12,6 +12,7 @@ Easy File Picker is a straightforward library with no dependencies to upload/pic
     - [Angular](#angular)
     - [React](#react)
     - [Vue](#vue)
+    - [Svelte](#svelte)
   - [Functions](#functions)
     - [GetFile](#getfile)
     - [GetFiles](#getfiles)
@@ -55,7 +56,7 @@ document.querySelector("#uploader").addEventListener("click", () => getFile().th
 HTML:
 
 ```html
-<button (click)="getFile()">Upload!</button>
+<button (click)="uploadFile()">Upload!</button>
 ```
 
 TypeScript:
@@ -63,7 +64,7 @@ TypeScript:
 ```js
 import { getFile, uploadFilesTo } from 'easy-file-picker';
 
-async getFile(): void {
+async uploadFile(): Promise<void> {
   const file = await getFile();
   await uploadFilesTo("http://example.com", file);
 }
@@ -71,18 +72,18 @@ async getFile(): void {
 
 ### React
 
-Javascript/TypeScript:
+Javascript:
 
 ```jsx
 import { getFile, uploadFilesTo } from 'easy-file-picker';
 
-async getFile(): void {
+async uploadFile() {
   const file = await getFile();
   await uploadFilesTo("http://example.com", file);
 }
 
 render() {
-  return <button onClick={getFile}>Upload!</button>;
+  return <button onClick={uploadFile}>Upload!</button>;
 }
 ```
 
@@ -91,20 +92,37 @@ render() {
 HTML:
 
 ```html
-<button @click="getFile">Upload!</button>
+<button @click="uploadFile">Upload!</button>
 ```
 
-TypeScript:
+Javascript:
 
 ```js
 import { getFile, uploadFilesTo } from 'easy-file-picker';
 
 methods: {
-  async getFile(): void {
+  async uploadFile() {
     const file = await getFile();
     await uploadFilesTo("http://example.com", file);
   }
 }
+```
+
+### Svelte
+
+Svelte:
+
+```html
+<script>
+import { getFile, uploadFilesTo } from 'easy-file-picker';
+
+async function uploadFile() {
+  const file = await getFile();
+  await uploadFilesTo("http://example.com", file);
+}
+</script>
+
+<button on:click={uploadFile}>Upload!</button>
 ```
 
 ## Functions
@@ -169,6 +187,13 @@ export declare function uploadFilesTo(url: string, files: File | File[]): Promis
 | content |  string  |    YES    |    undefined   | The string representation of the file's content |
 
 ## Changelog
+
+**Version 1.0.4:**
+
+- added example for Svelte
+- updated TypeScript version
+
+---
 
 **Version 1.0.3:**
 
