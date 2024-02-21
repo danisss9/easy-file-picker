@@ -203,6 +203,8 @@ function uploadFilesTo(url: string, files: File | File[], httpMethod: 'POST' | '
 - updated examples and documentation
 - updated TypeScript version
 
+---
+
 **Version 1.0.4:**
 
 - added example for Svelte
