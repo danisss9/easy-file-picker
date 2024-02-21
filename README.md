@@ -48,7 +48,7 @@ Javascript/TypeScript:
 ```js
 import { getFile, uploadFilesTo } from 'easy-file-picker';
 
-document.querySelector("#uploader").addEventListener("click", () => getFile().then((file) => uploadFilesTo("http://example.com", file)));
+document.querySelector("#uploader").addEventListener("click", () => getFile().then((file) => { if(file) uploadFilesTo("http://example.com", file)}));
 ```
 
 ### Angular
@@ -66,7 +66,9 @@ import { getFile, uploadFilesTo } from 'easy-file-picker';
 
 async uploadFile(): Promise<void> {
   const file = await getFile();
-  await uploadFilesTo("http://example.com", file);
+  if(file) {
+    await uploadFilesTo("http://example.com", file);
+  }
 }
 ```
 
@@ -79,7 +81,9 @@ import { getFile, uploadFilesTo } from 'easy-file-picker';
 
 async uploadFile() {
   const file = await getFile();
-  await uploadFilesTo("http://example.com", file);
+  if(file) {
+    await uploadFilesTo("http://example.com", file);
+  }
 }
 
 render() {
@@ -103,7 +107,9 @@ import { getFile, uploadFilesTo } from 'easy-file-picker';
 methods: {
   async uploadFile() {
     const file = await getFile();
-    await uploadFilesTo("http://example.com", file);
+    if(file) {
+      await uploadFilesTo("http://example.com", file);
+    }  
   }
 }
 ```
@@ -118,7 +124,9 @@ import { getFile, uploadFilesTo } from 'easy-file-picker';
 
 async function uploadFile() {
   const file = await getFile();
-  await uploadFilesTo("http://example.com", file);
+  if(file) {
+    await uploadFilesTo("http://example.com", file);
+  } 
 }
 </script>
 
@@ -129,15 +137,15 @@ async function uploadFile() {
 
 ### GetFile
 
-Shows a system file dialog where the user can select a single file and returns it.
+Shows a system file dialog where the user can select a single file and returns it. Returns null if no file is selected.
 
 ```js
-function getFile(options?: FilePickerOptions): Promise<File>
+function getFile(options?: FilePickerOptions): Promise<File | null>
 ```
 
 ### GetFiles
 
-Shows a system file dialog where the user can select multiple files and returns them.
+Shows a system file dialog where the user can select multiple files and returns them. Returns empty array if no file is selected.
 
 ```js
 function getFiles(options?: FilePickerOptions): Promise<File[]>
@@ -145,15 +153,15 @@ function getFiles(options?: FilePickerOptions): Promise<File[]>
 
 ### GetFileAsString
 
-Shows a system file dialog where the user can select a single file and returns a string representation of the file content.
+Shows a system file dialog where the user can select a single file and returns a string representation of the file content. Returns null if no file is selected.
 
 ```js
-function getFileAsString(options?: FilePickerOptions): Promise<FileStringResult>
+function getFileAsString(options?: FilePickerOptions): Promise<FileStringResult | null>
 ```
 
 ### GetFilesAsString
 
-Shows a system file dialog where the user can select multple files and returns string representations of the selected files content.
+Shows a system file dialog where the user can select multple files and returns string representations of the selected files content. Returns empty array if no file is selected.
 
 ```js
 function getFilesAsString(options?: FilePickerOptions): Promise<FileStringResult[]>
@@ -161,10 +169,10 @@ function getFilesAsString(options?: FilePickerOptions): Promise<FileStringResult
 
 ### UploadFilesTo
 
-Makes a POST request to the indicated url with the files as the body (content-type: form data).
+Makes a HTTP request to the indicated url with the files as the body (content-type: form data).
 
 ```js
-export declare function uploadFilesTo(url: string, files: File | File[]): Promise<Response>
+function uploadFilesTo(url: string, files: File | File[], httpMethod: 'POST' | 'PUT' = 'POST'): Promise<Response>
 ```
 
 ## Model
@@ -187,6 +195,13 @@ export declare function uploadFilesTo(url: string, files: File | File[]): Promis
 | content |  string  |    YES    |    undefined   | The string representation of the file's content |
 
 ## Changelog
+
+**Version 1.1:**
+
+- now handles when the user does not select a file
+- now handles input errors
+- updated examples and documentation
+- updated TypeScript version
 
 **Version 1.0.4:**
 

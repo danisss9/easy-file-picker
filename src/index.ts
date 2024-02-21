@@ -11,15 +11,19 @@ export type FileStringResult = {
   content: string;
 };
 
-export async function getFile(options?: FilePickerOptions): Promise<File> {
+export async function getFile(options?: FilePickerOptions): Promise<File | null> {
   const fileInput = createFileInput(false, options);
 
-  const file = new Promise<File>((resolve) => {
+  const file = new Promise<File | null>((resolve, reject) => {
     fileInput.onchange = (event: Event) => {
-      const files: File[] = convertFileListToFileArray(
-        (event.target as HTMLInputElement)?.files
-      );
+      const files: File[] = convertFileListToFileArray((event.target as HTMLInputElement)?.files);
       resolve(files[0]);
+    };
+    fileInput.oncancel = () => {
+      resolve(null);
+    };
+    fileInput.onerror = (_event, _source, _line, _col, error) => {
+      reject(error);
     };
     fileInput.click();
   });
@@ -30,12 +34,16 @@ export async function getFile(options?: FilePickerOptions): Promise<File> {
 export async function getFiles(options?: FilePickerOptions): Promise<File[]> {
   const fileInput = createFileInput(true, options);
 
-  const files = new Promise<File[]>((resolve) => {
+  const files = new Promise<File[]>((resolve, reject) => {
     fileInput.onchange = (event: Event) => {
-      const files: File[] = convertFileListToFileArray(
-        (event.target as HTMLInputElement)?.files
-      );
+      const files: File[] = convertFileListToFileArray((event.target as HTMLInputElement)?.files);
       resolve(files);
+    };
+    fileInput.oncancel = () => {
+      resolve([]);
+    };
+    fileInput.onerror = (_event, _source, _line, _col, error) => {
+      reject(error);
     };
     fileInput.click();
   });
@@ -43,20 +51,22 @@ export async function getFiles(options?: FilePickerOptions): Promise<File[]> {
   return files.finally(() => fileInput.remove());
 }
 
-export async function getFileAsString(
-  options?: FilePickerOptions
-): Promise<FileStringResult> {
+export async function getFileAsString(options?: FilePickerOptions): Promise<FileStringResult | null> {
   const fileInput = createFileInput(false, options);
 
-  const file = new Promise<FileStringResult>((resolve, reject) => {
+  const file = new Promise<FileStringResult | null>((resolve, reject) => {
     fileInput.onchange = (event: Event) => {
-      const files: File[] = convertFileListToFileArray(
-        (event.target as HTMLInputElement)?.files
-      );
+      const files: File[] = convertFileListToFileArray((event.target as HTMLInputElement)?.files);
 
       convertFileArrayToFileStringArray(files)
         .then((str) => resolve(str[0]))
         .catch((err) => reject(err));
+    };
+    fileInput.oncancel = () => {
+      resolve(null);
+    };
+    fileInput.onerror = (_event, _source, _line, _col, error) => {
+      reject(error);
     };
     fileInput.click();
   });
@@ -64,20 +74,22 @@ export async function getFileAsString(
   return file.finally(() => fileInput.remove());
 }
 
-export async function getFilesAsString(
-  options?: FilePickerOptions
-): Promise<FileStringResult[]> {
+export async function getFilesAsString(options?: FilePickerOptions): Promise<FileStringResult[]> {
   const fileInput = createFileInput(false, options);
 
   const files = new Promise<FileStringResult[]>((resolve, reject) => {
     fileInput.onchange = (event: Event) => {
-      const files: File[] = convertFileListToFileArray(
-        (event.target as HTMLInputElement)?.files
-      );
+      const files: File[] = convertFileListToFileArray((event.target as HTMLInputElement)?.files);
 
       convertFileArrayToFileStringArray(files)
         .then((str) => resolve(str))
         .catch((err) => reject(err));
+    };
+    fileInput.oncancel = () => {
+      resolve([]);
+    };
+    fileInput.onerror = (_event, _source, _line, _col, error) => {
+      reject(error);
     };
     fileInput.click();
   });
@@ -85,10 +97,7 @@ export async function getFilesAsString(
   return files.finally(() => fileInput.remove());
 }
 
-export async function uploadFilesTo(
-  url: string,
-  files: File | File[]
-): Promise<Response> {
+export async function uploadFilesTo(url: string, files: File | File[], httpMethod: 'POST' | 'PUT' = 'POST'): Promise<Response> {
   const filesArray = Array.isArray(files) ? files : [files];
   const formData = new FormData();
 
@@ -98,20 +107,17 @@ export async function uploadFilesTo(
   }
 
   return fetch(url, {
-    method: "POST",
+    method: httpMethod,
     body: formData,
   });
 }
 
-function createFileInput(
-  multpleFiles: boolean,
-  options?: FilePickerOptions
-): HTMLInputElement {
-  const fileInput = document.createElement("input");
+function createFileInput(multpleFiles: boolean, options?: FilePickerOptions): HTMLInputElement {
+  const fileInput = document.createElement('input');
   fileInput.hidden = true;
-  fileInput.type = "file";
+  fileInput.type = 'file';
   fileInput.multiple = multpleFiles;
-  fileInput.accept = options?.acceptedExtensions?.join(",") ?? "";
+  fileInput.accept = options?.acceptedExtensions?.join(',') ?? '';
   return fileInput;
 }
 
@@ -128,9 +134,7 @@ function convertFileListToFileArray(files: FileList | null): File[] {
   return fileArray;
 }
 
-async function convertFileArrayToFileStringArray(
-  files: File[]
-): Promise<FileStringResult[]> {
+async function convertFileArrayToFileStringArray(files: File[]): Promise<FileStringResult[]> {
   const reader = new FileReader();
   const filePromises = [];
 
@@ -146,7 +150,7 @@ async function convertFileArrayToFileStringArray(
           content: event.target?.result as string,
         });
       };
-      reader.readAsText(file, "utf-8");
+      reader.readAsText(file, 'utf-8');
     });
 
     filePromises.push(filePromise);
