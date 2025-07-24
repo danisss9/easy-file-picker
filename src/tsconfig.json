@@ -11,14 +11,13 @@
     "declarationMap": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
-    "experimentalDecorators": true,
-    "moduleResolution": "node",
-    "importHelpers": true,
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "target": "es2020",
-    "module": "es2020"
+    "module": "es2020",
+    "lib": ["es2020", "dom"]
   },
   "exclude": []
 }

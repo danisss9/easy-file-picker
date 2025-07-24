@@ -11,12 +11,16 @@ export type FileStringResult = {
   content: string;
 };
 
-export async function getFile(options?: FilePickerOptions): Promise<File | null> {
+export async function getFile(
+  options?: FilePickerOptions
+): Promise<File | null> {
   const fileInput = createFileInput(false, options);
 
   const file = new Promise<File | null>((resolve, reject) => {
     fileInput.onchange = (event: Event) => {
-      const files: File[] = convertFileListToFileArray((event.target as HTMLInputElement)?.files);
+      const files: File[] = convertFileListToFileArray(
+        (event.target as HTMLInputElement)?.files
+      );
       resolve(files[0]);
     };
     fileInput.oncancel = () => {
@@ -36,7 +40,9 @@ export async function getFiles(options?: FilePickerOptions): Promise<File[]> {
 
   const files = new Promise<File[]>((resolve, reject) => {
     fileInput.onchange = (event: Event) => {
-      const files: File[] = convertFileListToFileArray((event.target as HTMLInputElement)?.files);
+      const files: File[] = convertFileListToFileArray(
+        (event.target as HTMLInputElement)?.files
+      );
       resolve(files);
     };
     fileInput.oncancel = () => {
@@ -51,12 +57,16 @@ export async function getFiles(options?: FilePickerOptions): Promise<File[]> {
   return files.finally(() => fileInput.remove());
 }
 
-export async function getFileAsString(options?: FilePickerOptions): Promise<FileStringResult | null> {
+export async function getFileAsString(
+  options?: FilePickerOptions
+): Promise<FileStringResult | null> {
   const fileInput = createFileInput(false, options);
 
   const file = new Promise<FileStringResult | null>((resolve, reject) => {
     fileInput.onchange = (event: Event) => {
-      const files: File[] = convertFileListToFileArray((event.target as HTMLInputElement)?.files);
+      const files: File[] = convertFileListToFileArray(
+        (event.target as HTMLInputElement)?.files
+      );
 
       convertFileArrayToFileStringArray(files)
         .then((str) => resolve(str[0]))
@@ -74,12 +84,16 @@ export async function getFileAsString(options?: FilePickerOptions): Promise<File
   return file.finally(() => fileInput.remove());
 }
 
-export async function getFilesAsString(options?: FilePickerOptions): Promise<FileStringResult[]> {
-  const fileInput = createFileInput(false, options);
+export async function getFilesAsString(
+  options?: FilePickerOptions
+): Promise<FileStringResult[]> {
+  const fileInput = createFileInput(true, options);
 
   const files = new Promise<FileStringResult[]>((resolve, reject) => {
     fileInput.onchange = (event: Event) => {
-      const files: File[] = convertFileListToFileArray((event.target as HTMLInputElement)?.files);
+      const files: File[] = convertFileListToFileArray(
+        (event.target as HTMLInputElement)?.files
+      );
 
       convertFileArrayToFileStringArray(files)
         .then((str) => resolve(str))
@@ -97,27 +111,69 @@ export async function getFilesAsString(options?: FilePickerOptions): Promise<Fil
   return files.finally(() => fileInput.remove());
 }
 
-export async function uploadFilesTo(url: string, files: File | File[], httpMethod: 'POST' | 'PUT' = 'POST'): Promise<Response> {
-  const filesArray = Array.isArray(files) ? files : [files];
-  const formData = new FormData();
+export function uploadFilesTo(
+  url: string,
+  files: File | File[] | Record<string, File>
+): Promise<Response>;
+export function uploadFilesTo(
+  url: string,
+  files: File | File[] | Record<string, File>,
+  httpMethod: "POST" | "PUT"
+): Promise<Response>;
+export function uploadFilesTo(
+  url: string,
+  files: File | File[] | Record<string, File>,
+  requestInit: RequestInit
+): Promise<Response>;
+export async function uploadFilesTo(
+  url: string,
+  files: File | File[] | Record<string, File>,
+  methodOrInit: "POST" | "PUT" | RequestInit = "POST"
+): Promise<Response> {
+  const formData = filesToFormData(files);
+  const init =
+    typeof methodOrInit === "string"
+      ? {
+          body: formData,
+          method: methodOrInit,
+        }
+      : {
+          body: formData,
+          ...methodOrInit,
+        };
 
-  let i = 0;
-  for (const file of filesArray) {
-    formData.append(`File${i++}`, file, file.name);
-  }
-
-  return fetch(url, {
-    method: httpMethod,
-    body: formData,
-  });
+  return fetch(url, init);
 }
 
-function createFileInput(multpleFiles: boolean, options?: FilePickerOptions): HTMLInputElement {
-  const fileInput = document.createElement('input');
+function filesToFormData(
+  files: File | File[] | Record<string, File>
+): FormData {
+  const formData = new FormData();
+
+  if (files instanceof File) {
+    formData.append("file0", files);
+  } else if (Array.isArray(files)) {
+    files.forEach((file, i) => {
+      formData.append(`file${i}`, file);
+    });
+  } else if (typeof files === "object" && files != null) {
+    Object.entries(files).forEach(([key, file]) => {
+      formData.append(key, file);
+    });
+  }
+
+  return formData;
+}
+
+function createFileInput(
+  multipleFiles: boolean,
+  options?: FilePickerOptions
+): HTMLInputElement {
+  const fileInput = document.createElement("input");
   fileInput.hidden = true;
-  fileInput.type = 'file';
-  fileInput.multiple = multpleFiles;
-  fileInput.accept = options?.acceptedExtensions?.join(',') ?? '';
+  fileInput.type = "file";
+  fileInput.multiple = multipleFiles;
+  fileInput.accept = options?.acceptedExtensions?.join(",") ?? "";
   return fileInput;
 }
 
@@ -134,12 +190,14 @@ function convertFileListToFileArray(files: FileList | null): File[] {
   return fileArray;
 }
 
-async function convertFileArrayToFileStringArray(files: File[]): Promise<FileStringResult[]> {
-  const reader = new FileReader();
-  const filePromises = [];
+async function convertFileArrayToFileStringArray(
+  files: File[]
+): Promise<FileStringResult[]> {
+  const filePromises: Promise<FileStringResult>[] = [];
 
   for (const file of files) {
-    const filePromise = new Promise<FileStringResult>((resolve) => {
+    const filePromise = new Promise<FileStringResult>((resolve, reject) => {
+      const reader = new FileReader();
       reader.onload = (event: ProgressEvent<FileReader>) => {
         resolve({
           name: file.name,
@@ -150,11 +208,14 @@ async function convertFileArrayToFileStringArray(files: File[]): Promise<FileStr
           content: event.target?.result as string,
         });
       };
-      reader.readAsText(file, 'utf-8');
+      reader.onerror = () => {
+        reject(reader.error);
+      };
+      reader.readAsText(file, "utf-8");
     });
 
     filePromises.push(filePromise);
   }
 
-  return Promise.all(filePromises) as Promise<FileStringResult[]>;
+  return Promise.all(filePromises);
 }

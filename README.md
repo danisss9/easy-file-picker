@@ -8,7 +8,7 @@ Easy File Picker is a straightforward library with no dependencies to upload/pic
   - [Table of Contents](#table-of-contents)
   - [Install](#install)
   - [Usage](#usage)
-    - [Vanila Javascript](#vanila-javascript)
+    - [Vanilla JavaScript](#vanilla-javascript)
     - [Angular](#angular)
     - [React](#react)
     - [Vue](#vue)
@@ -22,6 +22,7 @@ Easy File Picker is a straightforward library with no dependencies to upload/pic
   - [Model](#model)
     - [FilePickerOptions](#filepickeroptions)
     - [FileStringResult](#filestringresult)
+  - [Error and Cancellation Handling](#error-and-cancellation-handling)
   - [Changelog](#changelog)
   - [FAQs](#faqs)
 
@@ -33,9 +34,9 @@ npm install easy-file-picker
 
 ## Usage
 
-Example on how to upload a file in various javascript frameworks:
+Examples of how to upload a file in various JavaScript frameworks:
 
-### Vanila Javascript
+### Vanilla JavaScript
 
 HTML:
 
@@ -43,7 +44,7 @@ HTML:
 <button id="uploader">Upload!</button>
 ```
 
-Javascript/TypeScript:
+JavaScript/TypeScript:
 
 ```js
 import { getFile, uploadFilesTo } from 'easy-file-picker';
@@ -74,7 +75,7 @@ async uploadFile(): Promise<void> {
 
 ### React
 
-Javascript:
+JavaScript:
 
 ```jsx
 import { getFile, uploadFilesTo } from 'easy-file-picker';
@@ -99,7 +100,7 @@ HTML:
 <button @click="uploadFile">Upload!</button>
 ```
 
-Javascript:
+JavaScript:
 
 ```js
 import { getFile, uploadFilesTo } from 'easy-file-picker';
@@ -137,7 +138,7 @@ async function uploadFile() {
 
 ### GetFile
 
-Shows a system file dialog where the user can select a single file and returns it. Returns null if no file is selected.
+Shows a system file dialog where the user can select a single file and returns it. Returns `null` if no file is selected.
 
 ```js
 function getFile(options?: FilePickerOptions): Promise<File | null>
@@ -145,7 +146,7 @@ function getFile(options?: FilePickerOptions): Promise<File | null>
 
 ### GetFiles
 
-Shows a system file dialog where the user can select multiple files and returns them. Returns empty array if no file is selected.
+Shows a system file dialog where the user can select multiple files and returns them. Returns an empty array if no file is selected.
 
 ```js
 function getFiles(options?: FilePickerOptions): Promise<File[]>
@@ -153,7 +154,7 @@ function getFiles(options?: FilePickerOptions): Promise<File[]>
 
 ### GetFileAsString
 
-Shows a system file dialog where the user can select a single file and returns a string representation of the file content. Returns null if no file is selected.
+Shows a system file dialog where the user can select a single file and returns a string representation of the file content. Returns `null` if no file is selected.
 
 ```js
 function getFileAsString(options?: FilePickerOptions): Promise<FileStringResult | null>
@@ -161,7 +162,7 @@ function getFileAsString(options?: FilePickerOptions): Promise<FileStringResult 
 
 ### GetFilesAsString
 
-Shows a system file dialog where the user can select multple files and returns string representations of the selected files content. Returns empty array if no file is selected.
+Shows a system file dialog where the user can select multiple files and returns string representations of the selected files' content. Returns an empty array if no file is selected.
 
 ```js
 function getFilesAsString(options?: FilePickerOptions): Promise<FileStringResult[]>
@@ -169,10 +170,17 @@ function getFilesAsString(options?: FilePickerOptions): Promise<FileStringResult
 
 ### UploadFilesTo
 
-Makes a HTTP request to the indicated url with the files as the body (content-type: form data).
+Makes an HTTP request to the indicated URL with the files as the body (Content-Type: form data).
 
 ```js
+// Basic usage (single or multiple files)
 function uploadFilesTo(url: string, files: File | File[], httpMethod: 'POST' | 'PUT' = 'POST'): Promise<Response>
+
+// With named files (object)
+function uploadFilesTo(url: string, files: Record<string, File>, httpMethod: 'POST' | 'PUT' = 'POST'): Promise<Response>
+
+// With custom RequestInit
+function uploadFilesTo(url: string, files: File | File[] | Record<string, File>, requestInit: RequestInit): Promise<Response>
 ```
 
 ## Model
@@ -190,11 +198,29 @@ function uploadFilesTo(url: string, files: File | File[], httpMethod: 'POST' | '
 | name |  string  |    YES    |    undefined   | The name of the file. |
 | size |  number  |    YES    |    undefined   | The size of the file in bytes.  |
 | type |  string  |    YES    |    undefined   | The [MIME](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types) type of the file. |
-| lastModified |  number  |    YES    |    undefined   | The last modified time of the file, in millisecond since the UNIX epoch. |
-|webkitRelativePath|  string  |    YES    |    undefined   | The path the URL of the file is relative to. |
+| lastModified |  number  |    YES    |    undefined   | The last modified time of the file, in milliseconds since the UNIX epoch. |
+|webkitRelativePath|  string  |    YES    |    undefined   | The path to which the file's URL is relative. |
 | content |  string  |    YES    |    undefined   | The string representation of the file's content |
 
+## Error and Cancellation Handling
+
+All file picker functions handle cancellation and errors:
+
+- If the user cancels the dialog or no file(s) are selected, the Promise resolves to `null` (for a single file) or an empty array (for multiple files).
+- If an error occurs during file selection or reading, the Promise will reject with the error.
+
 ## Changelog
+
+**Version 1.2:**
+
+- added more parameters to `uploadTo` method
+- added rimraf dev dependency to delete files cross platform
+- updated TypeScript version
+- fixed bug in `getFilesAsString` where multiple file selection was disabled
+- fixed FileReader race condition when reading multiple files as strings
+- improved error handling for file reading operations
+
+---
 
 **Version 1.1:**
 
